@@ -380,6 +380,12 @@ function initColors() {
 }
 
 
+function _test() {
+    const sd = shapez.ShapeDefinition.fromShortKey('crcrcrcr:crCuCuCu:crcrcrCu:CuCuCucr');
+    logger.log(sd.searchConnected(0, 0, true));
+}
+
+
 class Mod extends shapez.Mod {
     init() {
         initColors();
@@ -403,6 +409,8 @@ class Mod extends shapez.Mod {
         for (const Language in TRANSLATIONS) {
             this.modInterface.registerTranslations(Language, TRANSLATIONS[Language]);
         }
+
+        _test();
     }
 
     addSwapper() {
@@ -857,8 +865,43 @@ const CLASS_EXTENSION = {
         },
 
         // Addition for shapez2 feature
-        searchConnected(start_layer, start_quad) {
-            // TODO
+        searchConnected(startLayer, startQuad, crystalOnly = false) {
+            assert(0 <= startLayer && startLayer < this.layers.length, "Invalid layer");
+            assert(!crystalOnly || this.layers[startLayer][startQuad].subShape == enumModShape.crystal, "Crystal only");
+
+            const queue = [], visited = {};
+            let offset = 0;
+            queue.push([startLayer, startQuad]); visited[[startLayer, startQuad]] = true;
+            while (offset < queue.length) {
+                const curLayer = queue[offset][0], curQuad = queue[offset][1];
+                offset += 1;
+                {
+                    const newLayer = curLayer, newQuad = (curQuad + 1) % 4;
+                    if ((!([newLayer, newQuad] in visited))
+                        && this.layers[newLayer][newQuad]
+                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+                    }
+                }
+                {
+                    const newLayer = curLayer, newQuad = (curQuad + 3) % 4;
+                    if ((!([newLayer, newQuad] in visited))
+                        && this.layers[newLayer][newQuad]
+                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+                    }
+                }
+                {
+                    const newLayer = curLayer + 1, newQuad = curQuad;
+                    if (newLayer < this.layers.length
+                        && (!([newLayer, newQuad] in visited))
+                        && this.layers[newLayer][newQuad]
+                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+                    }
+                }
+            }
+            return queue;
         }
     }),
 };
