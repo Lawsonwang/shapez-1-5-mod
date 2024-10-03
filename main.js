@@ -900,6 +900,15 @@ const CLASS_EXTENSION = {
                         queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
                     }
                 }
+                {
+                    const newLayer = curLayer - 1, newQuad = curQuad;
+                    if (newLayer >= 0
+                        && (!([newLayer, newQuad] in visited))
+                        && this.layers[newLayer][newQuad]
+                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+                    }
+                }
             }
             return queue;
         }
