@@ -382,15 +382,30 @@ function initColors() {
 
 function _test() {
     // const sd1 = shapez.ShapeDefinition.fromShortKey('crcrcrcr:crCuCuCu:crcrcrCu:CuCuCucr');
-    // logger.log(sd1.searchConnected(0, 0, true));
+    // logger.log(searchConnected(sd1, 0, 0, true));
     // const sd2 = shapez.ShapeDefinition.fromShortKey('CuCuCuCu:--crcr--:--CucrCu:CucrCuCu');
-    // logger.log(sd2.searchConnected(1, 1, false));
+    // logger.log(searchConnected(sd2, 1, 1, false));
 
     // const sd3 = shapez.ShapeDefinition.fromShortKey('----Cu--:Cu----cr:CuCuCucr');
-    const sd3 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:CuCuCucr');
-    logger.log(sd3.getFallDownDistance(sd3.searchConnected(3, 3)));
-    const sd4 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:Cu--Cucr');
-    logger.log(sd4.getFallDownDistance(sd4.searchConnected(3, 3)));
+    // const sd3 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:CuCuCucr');
+    // logger.log(getFallDownDistance(sd3, searchConnected(sd3, 3, 3)));
+    // const sd4 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:Cu--Cucr');
+    // logger.log(getFallDownDistance(sd4, searchConnected(sd4, 3, 3)));
+
+    // const sd5 = shapez.ShapeDefinition.fromShortKey('cr--Cu--:--Cu----:Cu----cr:Cu--Cucr');
+    // logger.log(getAllConnected(sd5.layers));
+    // logger.log(sd5.cloneFallDown().getHash());
+
+    // const sd6 = shapez.ShapeDefinition.fromShortKey('P-------:P-----P-:P---CuCu:CuCuCuCu');
+    // logger.log(getAllConnected(sd6.layers));
+    // logger.log(sd6.cloneFallDown().getHash());
+
+    // const sd7 = shapez.ShapeDefinition.fromShortKey('P-------:P---Cu--:P---crCu:CuCuCuCu');
+    // logger.log(getAllConnected(sd7.layers));
+    // logger.log(sd7.cloneFallDown().getHash());
+
+    const sd8 = shapez.ShapeDefinition.fromShortKey('crCuCuCu:crCuCucr:CuCuCuCu:crcrCuCu');
+    logger.log(sd8.cloneBreakMedium().getHash());
 }
 
 
@@ -841,7 +856,7 @@ const CLASS_EXTENSION = {
         /**
          * Returns a unique id for this shape
          * @returns {string}
-         */
+        */
         getHash() {  // Modify for Pin
             if (this.cachedHash) {
                 return this.cachedHash;
@@ -873,76 +888,113 @@ const CLASS_EXTENSION = {
         },
 
         // Addition for shapez2 feature
-        searchConnected(startLayer, startQuad, crystalOnly = false) {
-            assert(0 <= startLayer && startLayer < this.layers.length, "Invalid layer");
-            assert(!crystalOnly || this.layers[startLayer][startQuad].subShape == enumModShape.crystal, "Crystal only");
-
-            const queue = [], visited = {};
-            let offset = 0;
-            queue.push([startLayer, startQuad]); visited[[startLayer, startQuad]] = true;
-            while (offset < queue.length) {
-                const curLayer = queue[offset][0], curQuad = queue[offset][1];
-                offset += 1;
-                {
-                    const newLayer = curLayer, newQuad = (curQuad + 1) % 4;
-                    if ((!([newLayer, newQuad] in visited))
-                        && this.layers[newLayer][newQuad]
-                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
-                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+        cloneFallDown() {
+            const newLayers = this.getClonedLayers();
+            while (true) {
+                const connectedLists = getAllConnected(newLayers);
+                let haveFall = false;
+                for (let i = 0; i < connectedLists.length; ++i) {
+                    const connectedList = connectedLists[i];
+                    const distance = getFallDownDistance(newLayers, connectedList);
+                    if (distance > 0) {
+                        haveFall = true;
+                    }
+                    for (let j = 0; j < connectedList.length; ++j) {
+                        const pos = connectedList[j];
+                        const curSubShape = newLayers[pos[0]][pos[1]];
+                        newLayers[pos[0]][pos[1]] = null;
+                        assert(!newLayers[pos[0] - distance][pos[1]], "The result of getFallDownDistance is invalid!");
+                        if (distance === 0 || curSubShape.subShape != enumModShape.crystal) {
+                            newLayers[pos[0] - distance][pos[1]] = curSubShape;
+                        }
                     }
                 }
-                {
-                    const newLayer = curLayer, newQuad = (curQuad + 3) % 4;
-                    if ((!([newLayer, newQuad] in visited))
-                        && this.layers[newLayer][newQuad]
-                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
-                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
-                    }
-                }
-                {
-                    const newLayer = curLayer + 1, newQuad = curQuad;
-                    if (newLayer < this.layers.length
-                        && (!([newLayer, newQuad] in visited))
-                        && this.layers[newLayer][newQuad]
-                        && this.layers[curLayer][curQuad].subShape == enumModShape.crystal
-                        && this.layers[newLayer][newQuad].subShape == enumModShape.crystal) {
-                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
-                    }
-                }
-                {
-                    const newLayer = curLayer - 1, newQuad = curQuad;
-                    if (newLayer >= 0
-                        && (!([newLayer, newQuad] in visited))
-                        && this.layers[newLayer][newQuad]
-                        && this.layers[curLayer][curQuad].subShape == enumModShape.crystal
-                        && this.layers[newLayer][newQuad].subShape == enumModShape.crystal) {
-                        queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
-                    }
+                if (!haveFall) {
+                    break;
                 }
             }
-            return queue;
+            return new shapez.ShapeDefinition({ layers: newLayers });
         },
-
-        getFallDownDistance(connectedList) {
-            const layers = this.getClonedLayers();
-            let lowestLayer = 4;
-            for (let i = 0; i < connectedList.length; ++i) {
-                const pos = connectedList[i];
-                layers[pos[0]][pos[1]] = null;
-                lowestLayer = Math.min(lowestLayer, pos[0]);
+        cloneBreakMedium() {
+            let newLayers = this.getClonedLayers();
+            for (let layerIndex = 0; layerIndex < newLayers.length; ++layerIndex) {
+                const layer = newLayers[layerIndex];
+                if (layer[0] && layer[1] && layer[0].subShape == enumModShape.crystal && layer[3].subShape == enumModShape.crystal) {
+                    newLayers = breakCrystal(newLayers, layerIndex, 0);
+                }
+                if (layer[0] && layer[1] && layer[1].subShape == enumModShape.crystal && layer[2].subShape == enumModShape.crystal) {
+                    newLayers = breakCrystal(newLayers, layerIndex, 1);
+                }
             }
-            for (let dis = 1; dis <= lowestLayer; ++dis) {
-                let isEmpty = true;
-                for (let i = 0; i < connectedList.length; ++i) {
-                    const pos = connectedList[i];
-                    if (layers[pos[0] - dis][pos[1]]) {
-                        isEmpty = false;
-                        break
+            return new shapez.ShapeDefinition({ layers: newLayers });
+        },
+        cloneClearOverheights() {
+            let newLayers = this.getClonedLayers();
+            for (let layer = 4; layer < newLayers.length; ++layer) {
+                for (let quad = 0; quad < 4; ++quad) {
+                    if (!newLayers[layer][quad]) continue;
+                    if (newLayers[layer][quad].subShape == enumModShape.crystal) {
+                        newLayers = breakCrystal(newLayers, layer, quad);
+                    } else {
+                        newLayers[layer][quad] = null;
+                    }
+                    if (newLayers.length <= 4) break;
+                }
+            }
+            return new shapez.ShapeDefinition({ layers: newLayers }).cloneFallDown();
+        }
+    }),
+    ShapeDefinitionManager: ({ $super, $old }) => ({
+        /**
+         * Generates a definition for stacking the upper definition onto the lower one
+         * @param {ShapeDefinition} lowerDefinition
+         * @param {ShapeDefinition} upperDefinition
+         * @returns {ShapeDefinition}
+         */
+        shapeActionStack(lowerDefinition, upperDefinition) {
+            const key = "stack/" + lowerDefinition.getHash() + "/" + upperDefinition.getHash();
+            if (this.operationCache[key]) {
+                return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+            }
+
+            this.root.signals.achievementCheck.dispatch(shapez.ACHIEVEMENTS.stackShape, null);
+
+            const upperLayers = upperDefinition.getClonedLayers();
+            for (let layer = 0; layer < upperLayers.length; ++layer) {  // Break all the crystals
+                for (let quad = 0; quad < 4; ++quad) {
+                    if (!upperLayers[layer][quad]) continue;
+                    if (upperLayers[layer][quad].subShape == enumModShape.crystal) {
+                        upperLayers[layer][quad] = null;
                     }
                 }
-                if (!isEmpty) return dis - 1;
             }
-            return lowestLayer;
+
+            const stackedLayers = lowerDefinition.layers.concat(upperLayers);
+            return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+                new shapez.ShapeDefinition({ layers: stackedLayers }).cloneFallDown().cloneClearOverheights()
+            ));
+        },
+        /**
+         * Generates a definition for splitting a shape definition in two halfs
+         * @param {ShapeDefinition} definition
+         * @returns {[ShapeDefinition, ShapeDefinition]}
+         */
+        shapeActionCutHalf(definition) {
+            const key = "cut/" + definition.getHash();
+            if (this.operationCache[key]) {
+                return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key]);
+            }
+            const newDefinition = definition.cloneBreakMedium();
+
+            const rightSide = newDefinition.cloneFilteredByQuadrants([2, 3]);
+            const leftSide = newDefinition.cloneFilteredByQuadrants([0, 1]);
+
+            this.root.signals.achievementCheck.dispatch(shapez.ACHIEVEMENTS.cutShape, null);
+
+            return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key] = [
+                this.registerOrReturnHandle(rightSide.cloneFallDown()),
+                this.registerOrReturnHandle(leftSide.cloneFallDown()),
+            ]);
         },
     }),
 };
@@ -964,6 +1016,115 @@ const SIGNAL_FUNCTION = {
 };  // end SIGNAL_FUNCTION
 
 // end Extends & Signals
+
+// start shapez2 features
+
+function searchConnected(layers, startLayer, startQuad, crystalOnly = false) {
+    assert(0 <= startLayer && startLayer < layers.length, "Invalid layer");
+    assert(!crystalOnly || layers[startLayer][startQuad].subShape == enumModShape.crystal, "Crystal only");
+    if (layers[startLayer][startQuad].subShape == enumModShape.pin) {
+        return [[startLayer, startQuad]];
+    }
+
+    const queue = [], visited = {};
+    let offset = 0;
+    queue.push([startLayer, startQuad]); visited[[startLayer, startQuad]] = true;
+    while (offset < queue.length) {
+        const curLayer = queue[offset][0], curQuad = queue[offset][1];
+        offset += 1;
+        {
+            const newLayer = curLayer, newQuad = (curQuad + 1) % 4;
+            if ((!([newLayer, newQuad] in visited))
+                && layers[newLayer][newQuad]
+                && layers[newLayer][newQuad].subShape != enumModShape.pin
+                && (!crystalOnly || layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+            }
+        }
+        {
+            const newLayer = curLayer, newQuad = (curQuad + 3) % 4;
+            if ((!([newLayer, newQuad] in visited))
+                && layers[newLayer][newQuad]
+                && layers[newLayer][newQuad].subShape != enumModShape.pin
+                && (!crystalOnly || layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+            }
+        }
+        {
+            const newLayer = curLayer + 1, newQuad = curQuad;
+            if (newLayer < layers.length
+                && (!([newLayer, newQuad] in visited))
+                && layers[newLayer][newQuad]
+                && layers[newLayer][newQuad].subShape != enumModShape.pin
+                && layers[curLayer][curQuad].subShape == enumModShape.crystal
+                && layers[newLayer][newQuad].subShape == enumModShape.crystal) {
+                queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+            }
+        }
+        {
+            const newLayer = curLayer - 1, newQuad = curQuad;
+            if (newLayer >= 0
+                && (!([newLayer, newQuad] in visited))
+                && layers[newLayer][newQuad]
+                && layers[newLayer][newQuad].subShape != enumModShape.pin
+                && layers[curLayer][curQuad].subShape == enumModShape.crystal
+                && layers[newLayer][newQuad].subShape == enumModShape.crystal) {
+                queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
+            }
+        }
+    }
+    return queue;
+}
+function getAllConnected(layers) {
+    const visited = {};
+    const result = [];
+    for (let layerIndex = 0; layerIndex < layers.length; ++layerIndex) {
+        const layer = layers[layerIndex];
+        for (let quadrant = 0; quadrant < layer.length; ++quadrant) {
+            const item = layer[quadrant];
+            if (!item || [layerIndex, quadrant] in visited) continue;
+            const connectedList = searchConnected(layers, layerIndex, quadrant);
+            result.push(connectedList);
+            for (let i = 0; i < connectedList.length; ++i) {
+                visited[[connectedList[i][0], connectedList[i][1]]] = true;
+            }
+        }
+    }
+    return result;
+}
+function getFallDownDistance(oldLayers, connectedList) {
+    const layers = JSON.parse(JSON.stringify(oldLayers));
+    let lowestLayer = 4;
+    for (let i = 0; i < connectedList.length; ++i) {
+        const pos = connectedList[i];
+        layers[pos[0]][pos[1]] = null;
+        lowestLayer = Math.min(lowestLayer, pos[0]);
+    }
+    for (let dis = 1; dis <= lowestLayer; ++dis) {
+        let isEmpty = true;
+        for (let i = 0; i < connectedList.length; ++i) {
+            const pos = connectedList[i];
+            if (layers[pos[0] - dis][pos[1]]) {
+                isEmpty = false;
+                break
+            }
+        }
+        if (!isEmpty) return dis - 1;
+    }
+    return lowestLayer;
+}
+function breakCrystal(oldLayers, startLayer, startQuad) {
+    const layers = JSON.parse(JSON.stringify(oldLayers));
+    const connectedList = searchConnected(layers, startLayer, startQuad, true);
+    for (let i = 0; i < connectedList.length; ++i) {
+        const pos = connectedList[i];
+        assert(layers[pos[0]][pos[1]].subShape == enumModShape.crystal, "The result of searchConnected contains non-crystal!");
+        layers[pos[0]][pos[1]] = null;
+    }
+    return layers;
+}
+
+// end shapez2 features
 
 
 function registerShapeSwapperProcessorType(modInterface) {
@@ -1011,11 +1172,9 @@ function shapeActionPinPush(root, definition) {
             }
         }
     }
-    const pinLayer = new shapez.ShapeDefinition({ layers: [pinQuads] });
-    const stacked = pinLayer.cloneAndStackWith(definition);
-
+    let newLayers = [pinQuads].concat(definition.layers);
     return /** @type {ShapeDefinition} */ (definitionMgr.operationCache[key] = definitionMgr.registerOrReturnHandle(
-        stacked
+        new shapez.ShapeDefinition({ layers: newLayers }).cloneClearOverheights()
     ));
 }
 
@@ -1029,10 +1188,13 @@ function shapeActionSwap(root, definition1, definition2) {
     let firstShape;
     let secondShape;
 
-    const l1 = definition1.cloneFilteredByQuadrants([2, 3]);
-    const l2 = definition2.cloneFilteredByQuadrants([2, 3]);
-    const r1 = definition1.cloneFilteredByQuadrants([0, 1]);
-    const r2 = definition2.cloneFilteredByQuadrants([0, 1]);
+    const newDefinition1 = definition1.cloneBreakMedium();
+    const newDefinition2 = definition2.cloneBreakMedium();
+
+    const l1 = newDefinition1.cloneFilteredByQuadrants([2, 3]).cloneFallDown();
+    const l2 = newDefinition2.cloneFilteredByQuadrants([2, 3]).cloneFallDown();
+    const r1 = newDefinition1.cloneFilteredByQuadrants([0, 1]).cloneFallDown();
+    const r2 = newDefinition2.cloneFilteredByQuadrants([0, 1]).cloneFallDown();
 
     if (l1.isEntirelyEmpty()) {
         firstShape = r2;
@@ -1080,6 +1242,18 @@ function shapeActionCrystalGen(root, definition, color) {
 
     return /** @type {ShapeDefinition} */ (definitionMgr.operationCache[key] = definitionMgr.registerOrReturnHandle(
         new shapez.ShapeDefinition({ layers: newLayers })
+    ));
+}
+
+function shapeActionFallDown(root, definition) {
+    const definitionMgr = root.shapeDefinitionMgr;
+    const key = "falldown/" + definition.getHash();
+    if (definitionMgr.operationCache[key]) {
+        return /** @type {ShapeDefinition} */ (definitionMgr.operationCache[key]);
+    }
+
+    return /** @type {ShapeDefinition} */ (definitionMgr.operationCache[key] = definitionMgr.registerOrReturnHandle(
+        definition.cloneFallDown()
     ));
 }
 
