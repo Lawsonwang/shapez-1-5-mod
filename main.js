@@ -374,15 +374,23 @@ const enumCrystalColors = {
 }
 
 function initColors() {
-    for (let color in shapez.enumColorsToHexCode) {
+    for (const color in shapez.enumColorsToHexCode) {
         enumHexCodeToColors[shapez.enumColorsToHexCode[color]] = color;
     }
 }
 
 
 function _test() {
-    const sd = shapez.ShapeDefinition.fromShortKey('crcrcrcr:crCuCuCu:crcrcrCu:CuCuCucr');
-    logger.log(sd.searchConnected(0, 0, true));
+    // const sd1 = shapez.ShapeDefinition.fromShortKey('crcrcrcr:crCuCuCu:crcrcrCu:CuCuCucr');
+    // logger.log(sd1.searchConnected(0, 0, true));
+    // const sd2 = shapez.ShapeDefinition.fromShortKey('CuCuCuCu:--crcr--:--CucrCu:CucrCuCu');
+    // logger.log(sd2.searchConnected(1, 1, false));
+
+    // const sd3 = shapez.ShapeDefinition.fromShortKey('----Cu--:Cu----cr:CuCuCucr');
+    const sd3 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:CuCuCucr');
+    logger.log(sd3.getFallDownDistance(sd3.searchConnected(3, 3)));
+    const sd4 = shapez.ShapeDefinition.fromShortKey('----Cu--:--Cu----:Cu----cr:Cu--Cucr');
+    logger.log(sd4.getFallDownDistance(sd4.searchConnected(3, 3)));
 }
 
 
@@ -896,7 +904,8 @@ const CLASS_EXTENSION = {
                     if (newLayer < this.layers.length
                         && (!([newLayer, newQuad] in visited))
                         && this.layers[newLayer][newQuad]
-                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        && this.layers[curLayer][curQuad].subShape == enumModShape.crystal
+                        && this.layers[newLayer][newQuad].subShape == enumModShape.crystal) {
                         queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
                     }
                 }
@@ -905,13 +914,36 @@ const CLASS_EXTENSION = {
                     if (newLayer >= 0
                         && (!([newLayer, newQuad] in visited))
                         && this.layers[newLayer][newQuad]
-                        && (!crystalOnly || this.layers[newLayer][newQuad].subShape == enumModShape.crystal)) {
+                        && this.layers[curLayer][curQuad].subShape == enumModShape.crystal
+                        && this.layers[newLayer][newQuad].subShape == enumModShape.crystal) {
                         queue.push([newLayer, newQuad]); visited[[newLayer, newQuad]] = true;
                     }
                 }
             }
             return queue;
-        }
+        },
+
+        getFallDownDistance(connectedList) {
+            const layers = this.getClonedLayers();
+            let lowestLayer = 4;
+            for (let i = 0; i < connectedList.length; ++i) {
+                const pos = connectedList[i];
+                layers[pos[0]][pos[1]] = null;
+                lowestLayer = Math.min(lowestLayer, pos[0]);
+            }
+            for (let dis = 1; dis <= lowestLayer; ++dis) {
+                let isEmpty = true;
+                for (let i = 0; i < connectedList.length; ++i) {
+                    const pos = connectedList[i];
+                    if (layers[pos[0] - dis][pos[1]]) {
+                        isEmpty = false;
+                        break
+                    }
+                }
+                if (!isEmpty) return dis - 1;
+            }
+            return lowestLayer;
+        },
     }),
 };
 
