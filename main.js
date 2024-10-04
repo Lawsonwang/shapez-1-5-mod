@@ -919,10 +919,10 @@ const CLASS_EXTENSION = {
             let newLayers = this.getClonedLayers();
             for (let layerIndex = 0; layerIndex < newLayers.length; ++layerIndex) {
                 const layer = newLayers[layerIndex];
-                if (layer[0] && layer[1] && layer[0].subShape == enumModShape.crystal && layer[3].subShape == enumModShape.crystal) {
+                if (layer[0] && layer[3] && layer[0].subShape == enumModShape.crystal && layer[3].subShape == enumModShape.crystal) {
                     newLayers = breakCrystal(newLayers, layerIndex, 0);
                 }
-                if (layer[0] && layer[1] && layer[1].subShape == enumModShape.crystal && layer[2].subShape == enumModShape.crystal) {
+                if (layer[1] && layer[2] && layer[1].subShape == enumModShape.crystal && layer[2].subShape == enumModShape.crystal) {
                     newLayers = breakCrystal(newLayers, layerIndex, 1);
                 }
             }
