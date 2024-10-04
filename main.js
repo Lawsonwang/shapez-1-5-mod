@@ -55,6 +55,10 @@ TRANSLATIONS["en"] = {
             default: {
                 name: "Crystal Generator",
                 description: "Fills <strong>Gaps</strong> and <strong>Pins</strong> of a shape with color, and harden it into <strong>Crystal</strong>."
+            },
+            mirrored: {
+                name: "Crystal Generator",
+                description: "Fills <strong>Gaps</strong> and <strong>Pins</strong> of a shape with color, and harden it into <strong>Crystal</strong>."
             }
         },
         virtual_processor: {
@@ -114,6 +118,10 @@ TRANSLATIONS["zh-CN"] = {
         },
         crystal_generator: {
             default: {
+                name: "晶体生成器",
+                description: "将颜料填充到一个图形的<strong>空隙</strong>和<strong>针销</strong>中，并使其硬化为<strong>晶体</strong>。"
+            },
+            mirrored: {
                 name: "晶体生成器",
                 description: "将颜料填充到一个图形的<strong>空隙</strong>和<strong>针销</strong>中，并使其硬化为<strong>晶体</strong>。"
             }
