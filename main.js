@@ -1005,6 +1005,11 @@ const CLASS_EXTENSION = {
             ]);
         },
     }),
+    MetaCutterBuilding: ({ $super, $old }) => ({
+        getAvailableVariants(root) {
+            return $super.getAvailableVariants(root);
+        },
+    }),
 };
 
 const SIGNAL_FUNCTION = {
