@@ -144,6 +144,10 @@ TRANSLATIONS["zh-CN"] = {
 };
 
 
+const BLUEPRINT_SHAPE_KEY = "RbCbRbCb:CwCwCwCw";
+const BLUEPRINT_SHAPE_KEY_2 = "RbP-RbP-:SwRuSwRu";
+const BLUEPRINT_SHAPE_KEY_3 = "cbcbcbcb:CwCwCwCw";
+
 const logger = shapez.createLogger(METADATA["name"]);
 // const logger = { log: () => { } };
 
@@ -191,6 +195,10 @@ class MetaPinPusherBuilding extends shapez.ModMetaBuilding {
     getAdditionalStatistics(root) {
         const speed = root.hubGoals.getProcessorBaseSpeed(shapez.enumItemProcessorTypes.pin_pusher);
         return [[shapez.T.ingame.buildingPlacement.infoTexts.speed, shapez.formatItemsPerSecond(speed)]];
+    }
+
+    getIsUnlocked(root) {
+        return root.hubGoals.isRewardUnlocked(R.reward_pin_pusher);
     }
 
     setupEntityComponents(entity) {
@@ -247,6 +255,10 @@ class MetaShapeSwapperBuilding extends shapez.ModMetaBuilding {
     getAdditionalStatistics(root) {
         const speed = root.hubGoals.getProcessorBaseSpeed(shapez.enumItemProcessorTypes.shape_swapper);
         return [[shapez.T.ingame.buildingPlacement.infoTexts.speed, shapez.formatItemsPerSecond(speed)]];
+    }
+
+    getIsUnlocked(root) {
+        return root.hubGoals.isRewardUnlocked(R.reward_shape_swapper);
     }
 
     setupEntityComponents(entity) {
@@ -314,6 +326,10 @@ class MetaCrystalGeneratorBuilding extends shapez.ModMetaBuilding {
     getAdditionalStatistics(root, variant) {
         const speed = root.hubGoals.getProcessorBaseSpeed(shapez.enumItemProcessorTypes.crystal_generator);
         return [[shapez.T.ingame.buildingPlacement.infoTexts.speed, shapez.formatItemsPerSecond(speed)]];
+    }
+
+    getIsUnlocked(root) {
+        return root.hubGoals.isRewardUnlocked(R.reward_crystal_generator);
     }
 
     /**
@@ -424,34 +440,34 @@ R.reward_crystal_generator = "reward_crystal_generator";
 
 function getLevels() {
     const LevelsForVariant = [
-        // 1
+        // 1 Blueprint I
+        {
+            shape: "RbCbRbCb:CwCwCwCw",
+            required: 10,
+            reward: R.reward_blueprints,
+        },
+        // 2
         {
             shape: "RgRyRbRr",
             required: 10,
             reward: R.reward_shape_swapper,
         },
-        // 2
+        // 3
         {
             shape: "CgCgRrRr:RrRrCgCg:WuWuSbSb:SbSbWuWu",
             required: 10,
             reward: R.reward_wires_painter_and_levers,
         },
-        // 3
+        // 4
         {
             shape: "RgRyRbRr:WgWyWbWr",
             required: 10,
             reward: R.reward_belt_reader,
         },
-        // 4
-        {
-            shape: "Cr--Cr--:Cg--Cg--:Cb--Cb--:CwCwCwCw",
-            required: 10,
-            reward: R.reward_pin_pusher,
-        },
 
-        // 5
+        // 5 Blueprint II
         {
-            shape: "RyP-RyP-:SwRuSwRu",
+            shape: "RbP-RbP-:SwRuSwRu",
             required: 10,
             reward: R.reward_storage,
         },
@@ -474,9 +490,9 @@ function getLevels() {
             reward: R.reward_crystal_generator,
         },
 
-        // 9
+        // 9 Blueprint III
         {
-            shape: "crcrcrcr:CwCwCwCw",
+            shape: "cbcbcbcb:CwCwCwCw",
             required: 10,
             reward: R.reward_splitter,
         },
@@ -488,7 +504,7 @@ function getLevels() {
         },
         // 11
         {
-            shape: "crCwcrCw:CwcrCwcr:crCwcrCw:crcrcrcr",
+            shape: "crCwcrCw:CwcrCwcr:crCwcrCw:cwcwcwcw",
             required: 10,
             reward: R.reward_constant_signal,
         },
@@ -501,25 +517,25 @@ function getLevels() {
 
         // 13
         {
-            shape: "P-cccccc:cpP-P-P-:--CyCyCy:------P-",
+            shape: "P-P-cycy:cpcpcrcr:cwcwcwcw:WpWpWrWr",
             required: 10,
             reward: R.reward_logic_gates,
         },
         // 14
         {
-            shape: "P-P-cycy:cpcpcrcr:cwcwcwcw:WpWpWrWr",
+            shape: "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp",
             required: 10,
             reward: R.reward_virtual_processing,
         },
         // 15
         {
-            shape: "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp",
+            shape: "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb",
             required: 10,
             reward: R.no_reward,
         },
         // 16
         {
-            shape: "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb",
+            shape: "--P---P-:------P-:Cu--Cucr:--------",
             required: 10,
             reward: R.reward_freeplay,
         },
@@ -1118,8 +1134,66 @@ const CLASS_EXTENSION = {
         },
     }),
     MetaCutterBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
         getAvailableVariants(root) {
             return $super.getAvailableVariants(root);
+        },
+    }),
+    MetaTrashBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+    }),
+    MetaBalancerBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+        getAvailableVariants(root) {
+            let available = [shapez.defaultBuildingVariant, shapez.enumBalancerVariants.merger, shapez.enumBalancerVariants.mergerInverse];
+            if (root.hubGoals.isRewardUnlocked(shapez.enumHubGoalRewards.reward_splitter)) {
+                available.push(shapez.enumBalancerVariants.splitter, shapez.enumBalancerVariants.splitterInverse);
+            }
+            return available;
+        }
+    }),
+    MetaRotaterBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+        getAvailableVariants(root) {
+            return [shapez.defaultBuildingVariant, shapez.enumRotaterVariants.ccw, shapez.enumRotaterVariants.rotate180];
+        }
+    }),
+    MetaUndergroundBeltBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+    }),
+    MetaPainterBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+    }),
+    MetaMixerBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+    }),
+    MetaStackerBuilding: ({ $super, $old }) => ({
+        getIsUnlocked(root) {
+            return true;
+        },
+    }),
+    MetaMinerBuilding: ({ $super, $old }) => ({
+        getAvailableVariants(root) {
+            return [shapez.enumMinerVariants.chainable];
+        }
+    }),
+    GameMode: ({ $super, $old }) => ({
+        getBlueprintShapeKey() {
+            return BLUEPRINT_SHAPE_KEY;
         },
     }),
 };
@@ -1137,6 +1211,13 @@ const SIGNAL_FUNCTION = {
                 logicGateSystem.boundOperations[shapez.enumLogicGateType.crystal_generator] = compute_CRYSTAL_GENERATOR.bind(logicGateSystem);
             }
         }
+    },
+    modifyUpgrades: (upgrades) => {
+        Object.assign(upgrades, getUpgrades());
+    },
+    modifyLevelDefinitions: (levels) => {
+        levels.length = 0;
+        Object.assign(levels, getLevels());
     },
 };  // end SIGNAL_FUNCTION
 
