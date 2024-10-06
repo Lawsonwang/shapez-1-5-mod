@@ -412,8 +412,119 @@ function _test() {
     // logger.log(getAllConnected(sd7.layers));
     // logger.log(sd7.cloneFallDown().getHash());
 
-    const sd8 = shapez.ShapeDefinition.fromShortKey('crCuCuCu:crCuCucr:CuCuCuCu:crcrCuCu');
-    logger.log(sd8.cloneBreakMedium().getHash());
+    // const sd8 = shapez.ShapeDefinition.fromShortKey('crCuCuCu:crCuCucr:CuCuCuCu:crcrCuCu');
+    // logger.log(sd8.cloneBreakMedium().getHash());
+}
+
+const R = shapez.enumHubGoalRewards;
+
+R.reward_shape_swapper = "reward_shape_swapper";
+R.reward_pin_pusher = "reward_pin_pusher";
+R.reward_crystal_generator = "reward_crystal_generator";
+
+function getLevels() {
+    const LevelsForVariant = [
+        // 1
+        {
+            shape: "RgRyRbRr",
+            required: 10,
+            reward: R.reward_shape_swapper,
+        },
+        // 2
+        {
+            shape: "CgCgRrRr:RrRrCgCg:WuWuSbSb:SbSbWuWu",
+            required: 10,
+            reward: R.reward_wires_painter_and_levers,
+        },
+        // 3
+        {
+            shape: "RgRyRbRr:WgWyWbWr",
+            required: 10,
+            reward: R.reward_belt_reader,
+        },
+        // 4
+        {
+            shape: "Cr--Cr--:Cg--Cg--:Cb--Cb--:CwCwCwCw",
+            required: 10,
+            reward: R.reward_pin_pusher,
+        },
+
+        // 5
+        {
+            shape: "RyP-RyP-:SwRuSwRu",
+            required: 10,
+            reward: R.reward_storage,
+        },
+        // 6
+        {
+            shape: "CyCyCyCy:P-CrCrP-:P-P-P-P-:WyRwRwWy",
+            required: 10,
+            reward: R.reward_underground_belt_tier_2,
+        },
+        // 7
+        {
+            shape: "RwWpRpWw:P-P-P---:RpWwRw--:--WpRpWp",
+            required: 10,
+            reward: R.reward_painter_double,
+        },
+        // 8
+        {
+            shape: "RyCyCyRy:SrP-P-Sr:CrCrCrCr:P-CwCwP-",
+            required: 10,
+            reward: R.reward_crystal_generator,
+        },
+
+        // 9
+        {
+            shape: "crcrcrcr:CwCwCwCw",
+            required: 10,
+            reward: R.reward_splitter,
+        },
+        // 10
+        {
+            shape: "RucrRucr:cbcbcbcb:CwCwCwCw",
+            required: 10,
+            reward: R.reward_filter,
+        },
+        // 11
+        {
+            shape: "crCwcrCw:CwcrCwcr:crCwcrCw:crcrcrcr",
+            required: 10,
+            reward: R.reward_constant_signal,
+        },
+        // 12
+        {
+            shape: "cbcbcrcr",
+            required: 10,
+            reward: R.reward_display,
+        },
+
+        // 13
+        {
+            shape: "P-cccccc:cpP-P-P-:--CyCyCy:------P-",
+            required: 10,
+            reward: R.reward_logic_gates,
+        },
+        // 14
+        {
+            shape: "P-P-cycy:cpcpcrcr:cwcwcwcw:WpWpWrWr",
+            required: 10,
+            reward: R.reward_virtual_processing,
+        },
+        // 15
+        {
+            shape: "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp",
+            required: 10,
+            reward: R.no_reward,
+        },
+        // 16
+        {
+            shape: "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb",
+            required: 10,
+            reward: R.reward_freeplay,
+        },
+    ];
+    return LevelsForVariant;
 }
 
 
@@ -949,6 +1060,7 @@ const CLASS_EXTENSION = {
                     if (newLayers.length <= 4) break;
                 }
             }
+            newLayers.splice(4);
             return new shapez.ShapeDefinition({ layers: newLayers }).cloneFallDown();
         }
     }),
