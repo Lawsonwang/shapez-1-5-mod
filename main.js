@@ -227,6 +227,10 @@ const BLUEPRINT_SHAPE_KEY = "RbCbRbCb:CwCwCwCw";
 const BLUEPRINT_SHAPE_KEY_2 = "RbP-RbP-:SwRuSwRu";
 const BLUEPRINT_SHAPE_KEY_3 = "RbcwRbcw:cbcbcbcb:CwCwCwCw";
 
+const INF_SHAPE_1 = "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp";
+const INF_SHAPE_2 = "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb";
+const INF_SHAPE_3 = "--P---P-:------P-:Cu--Cucr";
+
 const logger = shapez.createLogger(METADATA["name"]);
 // const logger = { log: () => { } };
 
@@ -522,104 +526,217 @@ function getLevels() {
         // 1 Blueprint I
         {
             shape: "RbCbRbCb:CwCwCwCw",
-            required: 10,
+            required: 50,
             reward: R.reward_blueprints,
         },
         // 2
         {
             shape: "RgRyRbRr",
-            required: 10,
+            required: 100,
             reward: R.reward_shape_swapper,
         },
         // 3
         {
             shape: "CgCgRrRr:RrRrCgCg:WuWuSbSb:SbSbWuWu",
-            required: 10,
+            required: 200,
             reward: R.reward_wires_painter_and_levers,
         },
         // 4
         {
             shape: "RgRyRbRr:WgWyWbWr",
-            required: 10,
+            required: 500,
             reward: R.reward_pin_pusher,
         },
 
         // 5 Blueprint II
         {
             shape: "RbP-RbP-:SwRuSwRu",
-            required: 10,
+            required: 1000,
             reward: R.reward_storage,
         },
         // 6
         {
             shape: "CyCyCyCy:P-CrCrP-:P-P-P-P-:WyRwRwWy",
-            required: 10,
+            required: 2000,
             reward: R.reward_underground_belt_tier_2,
         },
         // 7
         {
-            shape: "RwWpRpWw:P-P-P---:RpWwRw--:--WpRpWp",
-            required: 10,
+            shape: "RwCpRpCw:P-P-P---:RpCwRw--:--CpRpCp",
+            required: 4000,
             reward: R.reward_painter_double,
         },
         // 8
         {
             shape: "RyCyCyRy:SrP-P-Sr:CrCrCrCr:P-CwCwP-",
-            required: 10,
+            required: 8000,
             reward: R.reward_crystal_generator,
         },
 
         // 9
         {
             shape: "cbcbcbcb:CwCwCwCw",
-            required: 10,
+            required: 10000,
             reward: R.reward_splitter,
         },
         // 10 Blueprint III
         {
             shape: "RbcwRbcw:cbcbcbcb:CwCwCwCw",
-            required: 10,
+            required: 12000,
             reward: R.reward_filter,
         },
         // 11
         {
             shape: "crCwcrCw:CwcrCwcr:crCwcrCw:cwcwcwcw",
-            required: 10,
+            required: 14000,
             reward: R.reward_constant_signal,
         },
         // 12
         {
             shape: "cbcbcrcr",
-            required: 10,
+            required: 16000,
             reward: R.reward_display,
         },
 
         // 13
         {
             shape: "P-P-cycy:cpcpcrcr:cwcwcwcw:WpWpWrWr",
-            required: 10,
+            required: 16000,
             reward: R.reward_logic_gates,
         },
         // 14
         {
             shape: "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp",
-            required: 10,
+            required: 16000,
             reward: R.reward_virtual_processing,
         },
         // 15
         {
             shape: "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb",
-            required: 10,
+            required: 16000,
             reward: R.no_reward,
         },
         // 16
         {
             shape: "--P---P-:------P-:Cu--Cucr",
-            required: 10,
+            required: 16000,
             reward: R.reward_freeplay,
         },
     ];
     return LevelsForVariant;
+}
+
+function getUpgrades() {
+    const fixedImprovements = [1, 1, 1, 1, 1, 1];
+    const numEndgameUpgrades = 1000 - fixedImprovements.length - 1;
+
+    function generateInfiniteUnlocks() {
+        return new Array(numEndgameUpgrades).fill(null).map((_, i) => ({
+            required: [
+                { shape: INF_SHAPE_1, amount: 40000 + i * 10000 },
+                { shape: INF_SHAPE_2, amount: 20000 + i * 5000 },
+                { shape: INF_SHAPE_3, amount: 20000 + i * 5000 },
+            ],
+            excludePrevious: true,
+        }));
+    }
+
+    // Fill in endgame upgrades
+    for (let i = 0; i < numEndgameUpgrades; ++i) {
+        if (i < 20) {
+            fixedImprovements.push(0.1);
+        } else if (i < 50) {
+            fixedImprovements.push(0.05);
+        } else if (i < 100) {
+            fixedImprovements.push(0.025);
+        } else {
+            fixedImprovements.push(0.0125);
+        }
+    }
+
+    const upgrades = {
+        belt: [
+            { required: [{ shape: "CrCrCrCr", amount: 200 }], },
+            { required: [{ shape: "RgCbRgCb:CbCgCbCg", amount: 500 }], },
+            { required: [{ shape: "RuCwP-Cw:----Ru--", amount: 1200 }], },
+            { required: [{ shape: "CwcrCwcr:crCwcrCw", amount: 4000 }], },
+            { required: [{ shape: INF_SHAPE_1, amount: 10000 }], excludePrevious: true, },
+            { required: [{ shape: INF_SHAPE_1, amount: 20000 }, { shape: INF_SHAPE_2, amount: 10000 },], excludePrevious: true, },
+            ...generateInfiniteUnlocks(),
+        ],
+
+        miner: [
+            { required: [{ shape: "RbRbRbRb", amount: 200 }], },
+            { required: [{ shape: "CrCuCrRu:CuCrCuCr", amount: 500 }], },
+            { required: [{ shape: "P-CuP-Cu:RrP-RrP-:--Rb--Rb", amount: 1200 }], },
+            { required: [{ shape: "P-cccccc:cp------", amount: 4000 }], },
+            { required: [{ shape: INF_SHAPE_1, amount: 10000 }], excludePrevious: true, },
+            { required: [{ shape: INF_SHAPE_1, amount: 20000 }, { shape: INF_SHAPE_2, amount: 10000 },], excludePrevious: true, },
+            ...generateInfiniteUnlocks(),
+        ],
+
+        processors: [
+            { required: [{ shape: "CgCgCuCu", amount: 200 }], },
+            { required: [{ shape: "Cg------:Cr------", amount: 500 }], },
+            { required: [{ shape: "SbP-P-Sb:--WbWb--:CuCuCuCu:P-CbCbP-", amount: 1200 }], },
+            { required: [{ shape: "cbcbcrcr:cgcgcgcg:WuWuWuWu", amount: 4000 }], },
+            { required: [{ shape: INF_SHAPE_1, amount: 10000 }], excludePrevious: true, },
+            { required: [{ shape: INF_SHAPE_1, amount: 20000 }, { shape: INF_SHAPE_2, amount: 10000 },], excludePrevious: true, },
+            ...generateInfiniteUnlocks(),
+        ],
+
+        painting: [
+            { required: [{ shape: "ScScScSc", amount: 200 }], },
+            { required: [{ shape: "RgRyRbRr:WgWyWbWr", amount: 500 }], },
+            { required: [{ shape: "RyCyCyRy:SrP-P-Sr:CrCrCrCr:P-CwCwP-", amount: 1200 }], },
+            { required: [{ shape: "cgcycbcr:WuWuWuWu", amount: 4000 }], },
+            { required: [{ shape: INF_SHAPE_1, amount: 10000 }], excludePrevious: true, },
+            { required: [{ shape: INF_SHAPE_1, amount: 20000 }, { shape: INF_SHAPE_2, amount: 10000 },], excludePrevious: true, },
+            ...generateInfiniteUnlocks(),
+        ],
+    };
+
+    const difficulty = 1;
+    const tierGrowth = 2;
+
+    // Automatically generate tier levels
+    for (const upgradeId in upgrades) {
+        const upgradeTiers = upgrades[upgradeId];
+
+        let currentTierRequirements = [];
+        for (let i = 0; i < upgradeTiers.length; ++i) {
+            const tierHandle = upgradeTiers[i];
+            tierHandle.improvement = fixedImprovements[i];
+
+            tierHandle.required.forEach(required => {
+                required.amount = Math.round(required.amount * difficulty);
+            });
+            const originalRequired = tierHandle.required.slice();
+
+            // add previous required
+            if (!tierHandle.excludePrevious) {
+                for (let k = currentTierRequirements.length - 1; k >= 0; --k) {
+                    const oldTierRequirement = currentTierRequirements[k];
+                    tierHandle.required.unshift({
+                        shape: oldTierRequirement.shape,
+                        amount: oldTierRequirement.amount,
+                    });
+                }
+            }
+
+            // update for next tier
+            currentTierRequirements.push(
+                ...originalRequired.map(req => ({
+                    amount: req.amount,
+                    shape: req.shape,
+                }))
+            );
+            currentTierRequirements.forEach(tier => {
+                tier.amount = tier.amount * tierGrowth;
+            });
+        }
+    }
+    return upgrades;
 }
 
 
@@ -1480,9 +1597,9 @@ const SIGNAL_FUNCTION = {
             }
         }
     },
-    // modifyUpgrades: (upgrades) => {
-    //     Object.assign(upgrades, getUpgrades());
-    // },
+    modifyUpgrades: (upgrades) => {
+        Object.assign(upgrades, getUpgrades());
+    },
     modifyLevelDefinitions: (levels) => {
         levels.length = 0;
         Object.assign(levels, getLevels());
