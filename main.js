@@ -614,7 +614,7 @@ function getLevels() {
         },
         // 16
         {
-            shape: "--P---P-:------P-:Cu--Cucr:--------",
+            shape: "--P---P-:------P-:Cu--Cucr",
             required: 10,
             reward: R.reward_freeplay,
         },
@@ -1164,6 +1164,20 @@ const CLASS_EXTENSION = {
                 }
             }
             newLayers.splice(4);
+            while (newLayers.length) {
+                let allEmpty = true;
+                for (let quad = 0; quad < 4; ++quad) {
+                    if (newLayers[newLayers.length - 1][quad]) {
+                        allEmpty = false;
+                        break;
+                    }
+                }
+                if (allEmpty) {
+                    newLayers.length -= 1;
+                } else {
+                    break;
+                }
+            }
             return new shapez.ShapeDefinition({ layers: newLayers }).cloneFallDown();
         }
     }),
