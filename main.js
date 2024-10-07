@@ -48,7 +48,7 @@ TRANSLATIONS["en"] = {
         pin_pusher: {
             default: {
                 name: "Pin Pusher",
-                description: "Pushes the shape up and creates <strong>Pins</strong> under shapes."
+                description: "Pushes a <strong>Pin</strong> under every <strong>non-empty</strong> quarter on the <strong>first layer</strong>."
             }
         },
         crystal_generator: {
@@ -75,6 +75,47 @@ TRANSLATIONS["en"] = {
                 description: "Virtually <strong>Crystallizing</strong> a shape."
             }
         },
+    },
+    storyRewards: {
+        // Blueprint rewards
+        reward_storage: {
+            title: "Storage",
+            desc: "You have unlocked the <strong>storage</strong> building - It allows you to store items up to a given capacity!<br><br>\
+            It prioritizes the left output, so you can also use it as an <strong>overflow gate</strong>!<br><br>\
+            <strong>Besides</strong>, you have also unlocked the <strong>Upgraded Blueprint Shape II</strong> (Those you just delivered) - Delivering one of this shape will give you <strong>2 blueprint shapes</strong>!",
+        },
+        reward_filter: {
+            title: "Item Filter",
+            desc: "You unlocked the <strong>Item Filter</strong>! It will route items either to the top or the right output depending on whether they match the signal from the wires layer or not.<br><br>\
+            You can also pass in a boolean signal (1 or 0) to entirely activate or disable it.<br><br>\
+            <strong>Besides</strong>, you have also unlocked the <strong>Upgraded Blueprint Shape III</strong> (Those you just delivered) - Delivering one of this shape will give you <strong>4 blueprint shapes</strong>!",
+        },
+
+        reward_shape_swapper: {
+            title: "Shape Swapper",
+            desc: "You have unlocked the <strong>Shape Swapper</strong>\
+            - It swaps the right half of two input <strong>shapes</strong>.",
+        },
+        reward_pin_pusher: {
+            title: "Pin Pusher",
+            desc: "You have unlocked the <strong>Pin Pusher</strong>\
+            - It pushes a <strong>Pin</strong> under every <strong>non-empty</strong> quarter on the <strong>first layer</strong>.<br><br>\
+            While shape quarters that are not connected will <strong>fall</strong> when stacked, you can build shapes that are impossible to build otherwise with <strong>Pins</strong>.",
+        },
+        reward_crystal_generator: {
+            title: "Crystals",
+            desc: "You have unlocked the <strong>Crystal Generator</strong>\
+            - It creates <strong>Crystals</strong> by filling <strong>Gaps</strong> and <strong>Pins</strong> of a shape with color, and harden it into <strong>Crystal</strong>.<br><br>\
+            The <strong>Crystals</strong> are <strong>fragile</strong>, that means:<br><br>\
+            1. When a crystal shatters, it shatters <strong>all connected crystals</strong> as well.<br>\
+            2. A crystal will shatter if it <strong>falls</strong>. This can happen if it is in the <strong>top shape</strong> of a <strong>Stacker</strong>, or if it falls due to gravity in another operation.<br>\
+            3. A crystal will also shatter if it is separated from another connected crystal part.",
+        },
+    },
+    ingame: {
+        colors: {
+            undefined: "Pin",
+        }
     },
 };
 TRANSLATIONS["zh-CN"] = {
@@ -141,12 +182,50 @@ TRANSLATIONS["zh-CN"] = {
             }
         },
     },
+    storyRewards: {
+        // Blueprint rewards
+        reward_storage: {
+            title: "存储器",
+            desc: "您已经解锁了<strong>存储器</strong>，它能存满指定容量的物品！<br>\
+            它<strong>优先从左边</strong>输出，这样您就可以用它做一个<strong>溢流门</strong>了！<br><br>\
+            <strong>另外</strong>，您也解锁了<strong>二级蓝图图形</strong>（您刚刚交付的图形）：交付一个此图形会给你带来 <strong>2 个蓝图图形</strong>！",
+        },
+        reward_filter: {
+            title: "物品过滤器",
+            desc: "恭喜！您解锁了<strong>物品过滤器</strong>！它会根据在电线层上输入的信号决定是从上面还是右边输出物品。<br><br>\
+            您也可以输入开关值（1 / 0）信号来激活或者禁用它。<br><br>\
+            <strong>另外</strong>，您也解锁了<strong>三级蓝图图形</strong>（您刚刚交付的图形）：交付一个此图形会给你带来 <strong>4 个蓝图图形</strong>！",
+        },
+
+        reward_shape_swapper: {
+            title: "交换器",
+            desc: "恭喜！您解锁了<strong>交换器</strong>！它会将将输入的<strong>图形</strong>的右半部分交换。",
+        },
+        reward_pin_pusher: {
+            title: "顶针器",
+            desc: "恭喜！您解锁了<strong>顶针器</strong>！它会将图形向上推顶，并在第一层每个非空块下方安装<strong>针销（顶针）</strong>。<br><br>\
+            当图形堆叠时，<strong>未相连</strong>的象限块将会<strong>掉落</strong>。然而，使用顶针，您就可以制造常规方式无法制造的图形！"
+        },
+        reward_crystal_generator: {
+            title: "晶体",
+            desc: "恭喜！您解锁了<strong>晶体生成器</strong>！它会将颜料填充进图形中的<strong>空隙</strong>和<strong>针销</strong>并将其硬化成为晶体。<br><br>\
+            <strong>晶体</strong>非常脆弱，容易<strong>碎裂</strong>。这意味着：<br><br>\
+            1. 当一块晶体<strong>碎裂</strong>时，<strong>所有与之相连的晶体</strong>均会同时<strong>碎裂</strong>。<br>\
+            2. 一块晶体会在其摔落时<strong>碎裂</strong>。这包括当其作为<strong>堆叠器</strong>的<strong>上层图形</strong>，或是在进行其他操作时未与底层相连而因重力而掉落。<br>\
+            3. 一块晶体与其他<strong>相连晶体</strong>切割分离时也会碎裂。",
+        },
+    },
+    ingame: {
+        colors: {
+            undefined: "顶针",
+        }
+    },
 };
 
 
 const BLUEPRINT_SHAPE_KEY = "RbCbRbCb:CwCwCwCw";
 const BLUEPRINT_SHAPE_KEY_2 = "RbP-RbP-:SwRuSwRu";
-const BLUEPRINT_SHAPE_KEY_3 = "cbcbcbcb:CwCwCwCw";
+const BLUEPRINT_SHAPE_KEY_3 = "RbcwRbcw:cbcbcbcb:CwCwCwCw";
 
 const logger = shapez.createLogger(METADATA["name"]);
 // const logger = { log: () => { } };
@@ -462,7 +541,7 @@ function getLevels() {
         {
             shape: "RgRyRbRr:WgWyWbWr",
             required: 10,
-            reward: R.reward_belt_reader,
+            reward: R.reward_pin_pusher,
         },
 
         // 5 Blueprint II
@@ -490,15 +569,15 @@ function getLevels() {
             reward: R.reward_crystal_generator,
         },
 
-        // 9 Blueprint III
+        // 9
         {
             shape: "cbcbcbcb:CwCwCwCw",
             required: 10,
             reward: R.reward_splitter,
         },
-        // 10
+        // 10 Blueprint III
         {
-            shape: "RucrRucr:cbcbcbcb:CwCwCwCw",
+            shape: "RbcwRbcw:cbcbcbcb:CwCwCwCw",
             required: 10,
             reward: R.reward_filter,
         },
@@ -568,7 +647,15 @@ class Mod extends shapez.Mod {
             this.modInterface.registerTranslations(Language, TRANSLATIONS[Language]);
         }
 
-        _test();
+        this.addRewardsShow();
+    }
+
+    addRewardsShow() {  // 过关图片展示
+        const typed = x => x;
+        const R2C = shapez.enumHubGoalRewardsToContentUnlocked;
+        R2C[R.reward_shape_swapper] = typed([[MetaShapeSwapperBuilding, shapez.defaultBuildingVariant]]);
+        R2C[R.reward_pin_pusher] = typed([[MetaPinPusherBuilding, shapez.defaultBuildingVariant]]);
+        R2C[R.reward_crystal_generator] = typed([[MetaCrystalGeneratorBuilding, shapez.defaultBuildingVariant]]);
     }
 
     addSwapper() {
@@ -1195,6 +1282,173 @@ const CLASS_EXTENSION = {
         getBlueprintShapeKey() {
             return BLUEPRINT_SHAPE_KEY;
         },
+        getUpgradedBlueprintShapeKeys() {
+            const result = [];
+            if (this.root.hubGoals.isRewardUnlocked(R.reward_storage)) {  // Unlocked Blueprint II
+                result.push(BLUEPRINT_SHAPE_KEY_2);
+            }
+            if (this.root.hubGoals.isRewardUnlocked(R.reward_filter)) {  // Unlocked Blueprint III
+                result.push(BLUEPRINT_SHAPE_KEY_3);
+            }
+            return result;
+        },
+        getUpgradedBlueprintShapeKeysValues() {
+            const result = {};
+            if (this.root.hubGoals.isRewardUnlocked(R.reward_storage)) {  // Unlocked Blueprint II
+                result[BLUEPRINT_SHAPE_KEY_2] = 2;
+            }
+            if (this.root.hubGoals.isRewardUnlocked(R.reward_filter)) {  // Unlocked Blueprint III
+                result[BLUEPRINT_SHAPE_KEY_3] = 4;
+            }
+            return result;
+        },
+    }),
+    HUDConstantSignalEdit: ({ $super, $old }) => ({
+        editConstantSignal(entity, { deleteOnCancel = true }) {
+            if (!entity.components.ConstantSignal) {
+                return;
+            }
+
+            // Ok, query, but also save the uid because it could get stale
+            const uid = entity.uid;
+
+            const signal = entity.components.ConstantSignal.signal;
+            const signalValueInput = new shapez.FormElementInput({
+                id: "signalValue",
+                label: shapez.fillInLinkIntoTranslation(shapez.T.dialogs.editSignal.descShortKey, shapez.THIRDPARTY_URLS.shapeViewer),
+                placeholder: "",
+                defaultValue: signal ? signal.getAsCopyableKey() : "",
+                validator: val => this.parseSignalCode(entity, val),
+            });
+
+            const items = [...Object.values(shapez.COLOR_ITEM_SINGLETONS)];
+
+            if (entity.components.WiredPins) {
+                items.unshift(shapez.BOOL_FALSE_SINGLETON, shapez.BOOL_TRUE_SINGLETON);
+                items.push(
+                    this.root.shapeDefinitionMgr.getShapeItemFromShortKey(
+                        this.root.gameMode.getBlueprintShapeKey()
+                    )
+                );
+
+                // Addition for upgraded blueprint shapes
+                const blueprintShapeKeys = this.root.gameMode.getUpgradedBlueprintShapeKeys();
+                items.push(...blueprintShapeKeys.map(key => this.root.shapeDefinitionMgr.getShapeItemFromShortKey(key)));
+            } else {
+                // producer which can produce virtually anything
+                const shapes = ["CuCuCuCu", "RuRuRuRu", "WuWuWuWu", "SuSuSuSu"];
+                items.unshift(
+                    ...shapes.reverse().map(key => this.root.shapeDefinitionMgr.getShapeItemFromShortKey(key))
+                );
+            }
+
+            if (this.root.gameMode.hasHub()) {
+                items.push(
+                    this.root.shapeDefinitionMgr.getShapeItemFromDefinition(
+                        this.root.hubGoals.currentGoal.definition
+                    )
+                );
+            }
+
+            if (this.root.hud.parts.pinnedShapes) {
+                items.push(
+                    ...this.root.hud.parts.pinnedShapes.pinnedShapes.map(key =>
+                        this.root.shapeDefinitionMgr.getShapeItemFromShortKey(key)
+                    )
+                );
+            }
+
+            const itemInput = new shapez.FormElementItemChooser({
+                id: "signalItem",
+                label: null,
+                items,
+            });
+
+            const dialog = new shapez.DialogWithForm({
+                app: this.root.app,
+                title: shapez.T.dialogs.editConstantProducer.title,
+                desc: shapez.T.dialogs.editSignal.descItems,
+                formElements: [itemInput, signalValueInput],
+                buttons: ["cancel:bad:escape", "ok:good:enter"],
+                closeButton: false,
+            });
+            this.root.hud.parts.dialogs.internalShowDialog(dialog);
+
+            // When confirmed, set the signal
+            const closeHandler = () => {
+                if (!this.root || !this.root.entityMgr) {
+                    // Game got stopped
+                    return;
+                }
+
+                const entityRef = this.root.entityMgr.findByUid(uid, false);
+                if (!entityRef) {
+                    // outdated
+                    return;
+                }
+
+                const constantComp = entityRef.components.ConstantSignal;
+                if (!constantComp) {
+                    // no longer interesting
+                    return;
+                }
+
+                if (itemInput.chosenItem) {
+                    constantComp.signal = itemInput.chosenItem;
+                } else {
+                    constantComp.signal = this.parseSignalCode(entity, signalValueInput.getValue());
+                }
+            };
+
+            dialog.buttonSignals.ok.add(() => {
+                closeHandler();
+            });
+            dialog.valueChosen.add(() => {
+                dialog.closeRequested.dispatch();
+                closeHandler();
+            });
+
+            // When cancelled, destroy the entity again
+            if (deleteOnCancel) {
+                dialog.buttonSignals.cancel.add(() => {
+                    if (!this.root || !this.root.entityMgr) {
+                        // Game got stopped
+                        return;
+                    }
+
+                    const entityRef = this.root.entityMgr.findByUid(uid, false);
+                    if (!entityRef) {
+                        // outdated
+                        return;
+                    }
+
+                    const constantComp = entityRef.components.ConstantSignal;
+                    if (!constantComp) {
+                        // no longer interesting
+                        return;
+                    }
+
+                    this.root.logic.tryDeleteBuilding(entityRef);
+                });
+            }
+        }
+    }),
+    HubGoals: ({ $super, $old }) => ({
+        /**
+         * Handles the given definition, by either accounting it towards the
+         * goal or otherwise granting some points
+         * @param {ShapeDefinition} definition
+         */
+        handleDefinitionDelivered(definition) {
+            const blueprintShapeKeysValues = this.root.gameMode.getUpgradedBlueprintShapeKeysValues();
+            const hash = definition.getHash();
+            if (hash in blueprintShapeKeysValues) {
+                const bp = this.root.gameMode.getBlueprintShapeKey();
+                this.storedShapes[bp] = (this.storedShapes[bp] || 0) + blueprintShapeKeysValues[hash];
+                return;
+            }
+            $old.handleDefinitionDelivered.bind(this)(definition);
+        }
     }),
 };
 
@@ -1212,9 +1466,9 @@ const SIGNAL_FUNCTION = {
             }
         }
     },
-    modifyUpgrades: (upgrades) => {
-        Object.assign(upgrades, getUpgrades());
-    },
+    // modifyUpgrades: (upgrades) => {
+    //     Object.assign(upgrades, getUpgrades());
+    // },
     modifyLevelDefinitions: (levels) => {
         levels.length = 0;
         Object.assign(levels, getLevels());
