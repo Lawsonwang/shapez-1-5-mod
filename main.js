@@ -9,6 +9,9 @@ const METADATA = {
     minimumGameVersion: ">=1.5.0",
 };
 
+const _DEV_MODE = true;
+const _DEV_REQUIRED = 8;
+
 // Translations
 
 const TRANSLATIONS = {};
@@ -231,8 +234,7 @@ const INF_SHAPE_1 = "RyCyRyCy:Cr--Cr--:CwCwCwCw:cpcpcpcp";
 const INF_SHAPE_2 = "cgcycbcr:cycbcrcg:cbcrcgcy:crcgcycb";
 const INF_SHAPE_3 = "--P---P-:------P-:Cu--Cucr";
 
-const logger = shapez.createLogger(METADATA["name"]);
-// const logger = { log: () => { } };
+const logger = _DEV_MODE ? shapez.createLogger(METADATA["name"]) : { log: () => { } };
 
 const shapeSwapperProcessorType = "shape_swapper";
 const pinPusherProcessorType = "pin_pusher";
@@ -623,7 +625,11 @@ function getLevels() {
             reward: R.reward_freeplay,
         },
     ];
-    return LevelsForVariant;
+    return LevelsForVariant.map((value, index) => ({
+        shape: value.shape,
+        required: (_DEV_MODE ? _DEV_REQUIRED : value.required),
+        reward: value.reward,
+    }));
 }
 
 function getUpgrades() {
@@ -710,6 +716,7 @@ function getUpgrades() {
 
             tierHandle.required.forEach(required => {
                 required.amount = Math.round(required.amount * difficulty);
+                if (_DEV_MODE) required.amount = _DEV_REQUIRED;
             });
             const originalRequired = tierHandle.required.slice();
 
@@ -733,6 +740,7 @@ function getUpgrades() {
             );
             currentTierRequirements.forEach(tier => {
                 tier.amount = tier.amount * tierGrowth;
+                if (_DEV_MODE) tier.amount = _DEV_REQUIRED;
             });
         }
     }
@@ -765,6 +773,10 @@ class Mod extends shapez.Mod {
         }
 
         this.addRewardsShow();
+
+        if (_DEV_MODE) {
+            _test();
+        }
     }
 
     addRewardsShow() {  // 过关图片展示
@@ -1579,6 +1591,103 @@ const CLASS_EXTENSION = {
                 return;
             }
             $old.handleDefinitionDelivered.bind(this)(definition);
+        },
+        /**
+         * Creates a random single-layered shape
+         * @param {RandomNumberGenerator} rng
+         * @returns {ShapeDefinition}
+         */
+        createSingleLayerShape(rng, level) {
+            const colors = this.generateRandomColorSet(rng, level > 20);
+            let pickedSymmetry = null; // pairs of quadrants that must be the same
+            let availableShapes = [shapez.enumSubShape.rect, shapez.enumSubShape.circle, shapez.enumSubShape.star];
+            if (rng.next() < 0.5) {
+                pickedSymmetry = [
+                    // radial symmetry
+                    [0, 2],
+                    [1, 3],
+                ];
+                availableShapes.push(shapez.enumSubShape.windmill); // windmill looks good only in radial symmetry
+            } else {
+                const symmetries = [
+                    [
+                        // horizontal axis
+                        [0, 3],
+                        [1, 2],
+                    ],
+                    [
+                        // vertical axis
+                        [0, 1],
+                        [2, 3],
+                    ],
+                    [
+                        // diagonal axis
+                        [0, 2],
+                        [1],
+                        [3],
+                    ],
+                    [
+                        // other diagonal axis
+                        [1, 3],
+                        [0],
+                        [2],
+                    ],
+                ];
+                pickedSymmetry = rng.choice(symmetries);
+            }
+
+            const randomColor = () => rng.choice(colors);
+            const randomShape = () => rng.choice(availableShapes);
+
+            const layer = [null, null, null, null];
+            const killedGroup = (rng.next() < 0.5 ? -1 : rng.nextIntRange(0, pickedSymmetry.length));
+
+            for (let j = 0; j < pickedSymmetry.length; ++j) {
+                if (j == killedGroup) continue;
+                const group = pickedSymmetry[j];
+                const shape = randomShape();
+                const color = randomColor();
+                for (let k = 0; k < group.length; ++k) {
+                    const quad = group[k];
+                    layer[quad] = {
+                        subShape: shape,
+                        color,
+                    };
+                }
+            }
+
+            return new shapez.ShapeDefinition({ layers: [layer] });
+        },
+        /**
+         * Creates a (seeded) random shape
+         * @param {number} level
+         * @returns {ShapeDefinition}
+         */
+        computeFreeplayShape(level) {
+            const layerCount = Math.floor(shapez.clamp((level - 16 + 3) / 4, 1, 4));
+
+            logger.log("Level =", level);
+            logger.log("Layer Count =", layerCount);
+
+            const canGenerateCrystals = true;
+            const rng = new shapez.RandomNumberGenerator(this.root.map.seed + "/" + level);
+
+            let definition = this.createSingleLayerShape(rng, level);
+            if (canGenerateCrystals && rng.next() < 0.6) {
+                definition = shapeActionCrystalGen(this.root, definition, rng.choice(this.generateRandomColorSet(rng, 0)));
+            }
+            while (definition.layers.length < layerCount) {
+                let newLayerDefinition = this.createSingleLayerShape(rng, level);
+                if (newLayerDefinition.layers.length < layerCount - 1 && rng.next() < 0.6) {
+                    newLayerDefinition = shapeActionPinPush(this.root, newLayerDefinition);
+                }
+                definition = this.root.shapeDefinitionMgr.shapeActionStack(definition, newLayerDefinition);
+                if (canGenerateCrystals && rng.next() < 0.6) {
+                    definition = shapeActionCrystalGen(this.root, definition, rng.choice(this.generateRandomColorSet(rng, 0)));
+                }
+            }
+
+            return this.root.shapeDefinitionMgr.registerOrReturnHandle(definition);
         }
     }),
 };
