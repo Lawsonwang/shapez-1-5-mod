@@ -1,8 +1,11 @@
 import base64
 import json
 import os
+import sys
 
 import create_blueprint_previews
+
+config = {"version": "1.0", "dev": bool(int(sys.argv[1]) if len(sys.argv) > 1 else True)}
 
 
 def main():
@@ -28,6 +31,10 @@ def main():
         main_code = f.read()
 
     main_code += resources
+
+    main_code = main_code.replace("__DEV__", config["version"])
+    if not config["dev"]:
+        main_code = main_code.replace("const _DEV_MODE = true;", "const _DEV_MODE = false;")
 
     with open(os.path.join("build", "shapez_1_5_mod.js"), "w", encoding="utf-8") as f:
         f.write(main_code)

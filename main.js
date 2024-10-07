@@ -3,7 +3,7 @@ const METADATA = {
     website: "https://github.com/Lawsonwang",
     author: "Lawsonwang",
     name: "Shapez 1.5 Mod",
-    version: "1",
+    version: "__DEV__",
     id: "shapez_1_5_mod",
     description: "Shapez 1.5 Mod",
     minimumGameVersion: ">=1.5.0",
