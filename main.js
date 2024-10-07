@@ -937,11 +937,12 @@ function addModShapeDefinitions(modInterface) {
             context.fillStyle = shapez.enumColorsToHexCode[shapez.enumColors.uncolored];
             const quadrantHalfSize = quadrantSize / 2;
             context.beginPath();
-            context.moveTo(-quadrantHalfSize, quadrantHalfSize);
-            const R = quadrantSize * layerScale, r = quadrantSize * layerScale / 4;
-            const lR = R * Math.sqrt(2) / 2, lr = r * Math.sqrt(2) / 2;
-            context.moveTo(-quadrantHalfSize + lR - lr, quadrantHalfSize - lR + lr);
-            context.arc(-quadrantHalfSize + lR, quadrantHalfSize - lR, r, 3 / 4 * Math.PI, 11 / 4 * Math.PI);
+            const originX = -quadrantHalfSize, originY = quadrantHalfSize;
+            const R = 0.5 * quadrantSize * layerScale * Math.SQRT2, r = 0.25 * quadrantSize * layerScale * Math.SQRT2;
+            const circleOX = originX + (R * Math.SQRT1_2), circleOY = originY - (R * Math.SQRT1_2);
+            const startX = originX + ((R - r) * Math.SQRT1_2), startY = originY - ((R - r) * Math.SQRT1_2);
+            context.moveTo(startX, startY);
+            context.arc(circleOX, circleOY, r, 3 / 4 * Math.PI, 11 / 4 * Math.PI);
             context.closePath();
             context.fill();
             context.stroke();
